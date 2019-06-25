@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="author" content="Robert Zich">
+    <title>files-test</title>
+    <script type="text/javascript" src="static/js/main.js"></script>
+    <script type="text/javascript" src="static2/js/main.js"></script>
+</head>
+<body>
+files-test begin
+
+<script type="text/javascript">
+
+function runTest(test, callback) {
+    var i = 0;
+    var path = test.dir + "/js/main.js";
+    var startTime = new Date();
+    
+    document.body.innerHTML += "<br>";
+    document.body.innerHTML += "<br><b style='font-size: 24px'>Test<b>";
+    document.body.innerHTML += "<br><b>before was delay</b>: " + test.withDelay + "</>";
+    document.body.innerHTML += "<br><b>resource</b>: " + path + "";
+    document.body.innerHTML += "<br><b>count</b>: " + test.count + "</>";
+    
+    function loadFile() {
+        if (i < test.count) {
+            i++;
+            fetch(path)
+                .then(function(response) {
+                    return response.json();
+                })
+                .then(function(json_response) {
+                    loadFile();
+                })
+        } else {
+            var endTime = new Date();
+            var duration = endTime.getTime() - startTime.getTime();
+            document.body.innerHTML += "<br><b>total time</b>: " + duration + "ms";
+            document.body.innerHTML += "<br><b>time per request</b>: " + Math.round(duration / test.count) + "ms";
+            callback()
+        }
+    }
+    
+    loadFile();
+}
+
+var tests = [
+    {dir: "static", count: 1, withDelay: false},
+    {dir: "static", count: 1, withDelay: true},
+    {dir: "static", count: 1, withDelay: false},
+    {dir: "static", count: 50, withDelay: true},
+    {dir: "static2", count: 50, withDelay: true}
+];
+
+function runTests() {
+    if (tests.length > 0) {
+        var test = tests.splice(0, 1)[0];
+        
+        setTimeout(function(){
+            runTest(test, function() {
+                runTests();
+            });
+        }, test.withDelay ? 500 : 0);
+    }
+}
+
+runTests();
+</script>
+</body>
+</html>
