@@ -31,7 +31,7 @@ pub async fn static_files_manual_async(req: HttpRequest) -> Result<HttpResponse,
             ]
         })
         .content_type(content_type)
-        .content_length(buffer.len() as u64)
+        .no_chunking(buffer.len() as u64)
         .body(buffer))
 }
 
